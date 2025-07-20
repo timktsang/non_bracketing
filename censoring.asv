@@ -1,0 +1,45 @@
+% function to correlation for censoring 
+
+function result = censoring(data1,para3,para4)
+
+data2 = data1;
+
+cond1 = data2(:,3) == 1 & data2(:,2) <= 1 & data2(:,2) > 0;
+
+pd = bsxfun(@times,data2(cond1,1)<=18,para4(ones(sum(cond1),1),1:11)) + ...
+    bsxfun(@times,data2(cond1,1)>18,para4(ones(sum(cond1),1),12:22)); 
+
+temp = 2.^(-9:1);
+pd2 = bsxfun(@le,temp(ones(sum(cond1),1),:),data2(cond1,2));
+
+p = pd.*pd2;
+
+titer_cell = mat2cell(temp(ones(sum(cond1),1),:),ones(sum(cond1),1));
+ones_cell = mat2cell(ones(sum(cond1),1),ones(sum(cond1),1));
+prob_cell= mat2cell(p,ones(sum(cond1),1));
+data2(cond1,2) = cellfun(@randsample,titer_cell,ones_cell,ones_cell,prob_cell);
+
+
+
+cond2 = data2(:,3) == 1 & data2(:,2) > 1;
+          
+pd = bsxfun(@times,data2(cond2,1)<=18,para3(ones(sum(cond2),1),1:8)) + ...
+    bsxfun(@times,data2(cond2,1)>18,para3(ones(sum(cond2),1),9:16)); 
+
+temp = 2.^(2:9);
+pd2 = bsxfun(@le,temp(ones(sum(cond2),1),:),data2(cond2,2));
+
+p = pd.*pd2;
+
+titer_cell = mat2cell(temp(ones(sum(cond2),1),:),ones(sum(cond2),1));
+ones_cell = mat2cell(ones(sum(cond2),1),ones(sum(cond2),1));
+prob_cell= mat2cell(p,ones(sum(cond2),1));
+data2(cond,2) = cellfun(@randsample,titer_cell,ones_cell,ones_cell,prob_cell);
+
+
+
+
+
+
+result = data2;
+end

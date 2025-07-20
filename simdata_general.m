@@ -1,0 +1,53 @@
+% a simulation program for the data set. 
+
+function result = simdata_general(data,para1,para2,para3,para4,cum_ILILAB,cutoff,n)
+
+
+data1 = data(randi(size(data,1),n,1),:);
+data1_org = data1;
+
+age_prob = [sum(data(:,5) > 0 & data(:,5) <= 18) sum(data(:,5) > 18 & data(:,5) <= 50) sum(data(:,5) > 50)];
+data1(:,5) = randsample([17 39 55],n,1,age_prob);
+
+data1(:,8) = 5*2.^((data1(:,5)<=18).*randsample(0:9,size(data1,1),1,para2(1:10))' + (data1(:,5)>18).*randsample(0:9,size(data1,1),1,para2(11:20))');
+
+pro = ILI_pro(data1(:,[5 7 9]),para1,cum_ILILAB,cutoff); 
+h = pro.*exp(para1(7)*log2(data1(:,8)/5));
+data1(:,15) = binornd(1,1-exp(-h));
+
+data1(data1(:,15) == 0,10) = min(2560,max(5,data1(data1(:,15)==0,8).*2.^((data1(data1(:,15) == 0,5)<=18).*randsample(-9:1,sum(data1(:,15) == 0),1,para4(1:11))' + ...
+    (data1(data1(:,15) == 0,5)>18).*randsample(-9:1,sum(data1(:,15) == 0),1,para4(12:22))')));
+data1(data1(:,15) == 1,10) = min(2560,data1(data1(:,15)==1,8).*2.^((data1(data1(:,15) == 1,5)<=18).*randsample(2:9,sum(data1(:,15) == 1),1,para3(1:8))' + ...
+    (data1(data1(:,15) == 1,5)>18).*randsample(2:9,sum(data1(:,15) == 1),1,para3(9:16))'));
+
+
+pro = ILI_pro(data1(:,[5 9 11]),para1,cum_ILILAB,cutoff); 
+h = pro.*exp(para1(7)*log2(data1(:,10)/5));
+data1(:,16) = binornd(1,1-exp(-h));
+data1(data1(:,15)==1,16)=0;
+data1(data1(:,16) == 0,12) = min(2560,max(5,data1(data1(:,16)==0,10).*2.^((data1(data1(:,16) == 0,5)<=18).*randsample(-9:1,sum(data1(:,16) == 0),1,para4(1:11))' + ...
+    (data1(data1(:,16) == 0,5)>18).*randsample(-9:1,sum(data1(:,16) == 0),1,para4(12:22))')));
+data1(data1(:,16) == 1,12) = min(2560,data1(data1(:,16)==1,10).*2.^((data1(data1(:,16) == 1,5)<=18).*randsample(2:9,sum(data1(:,16) == 1),1,para3(1:8))' + ...
+    (data1(data1(:,16) == 1,5)>18).*randsample(2:9,sum(data1(:,16) == 1),1,para3(9:16))'));
+
+
+pro = ILI_pro(data1(:,[5 11 13]),para1,cum_ILILAB,cutoff); 
+h = pro.*exp(para1(7)*log2(data1(:,12)/5));
+data1(:,17) = binornd(1,1-exp(-h));
+data1(data1(:,15)==1|data1(:,16)==1,17)=0;
+data1(data1(:,17) == 0,14) = min(2560,max(5,data1(data1(:,17)==0,12).*2.^((data1(data1(:,17) == 0,5)<=18).*randsample(-9:1,sum(data1(:,17) == 0),1,para4(1:11))' + ...
+    (data1(data1(:,17) == 0,5)>18).*randsample(-9:1,sum(data1(:,17) == 0),1,para4(12:22))')));
+data1(data1(:,17) == 1,14) = min(2560,data1(data1(:,17)==1,12).*2.^((data1(data1(:,17) == 1,5)<=18).*randsample(2:9,sum(data1(:,17) == 1),1,para3(1:8))' + ...
+    (data1(data1(:,17) == 1,5)>18).*randsample(2:9,sum(data1(:,17) == 1),1,para3(9:16))'));
+
+data1(data1_org(:,5)==-1,5)=-1;
+data1(data1_org(:,8)==-1,8)=-1;
+data1(data1_org(:,10)==-1,10)=-1;
+data1(data1_org(:,12)==-1,12)=-1;
+data1(data1_org(:,14)==-1,14)=-1;
+
+
+
+          
+result = data1(:,1:14);
+end
